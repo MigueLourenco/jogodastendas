@@ -1,0 +1,697 @@
+import java.io.File
+fun criaLegendaContadoresHorizontal(contadoresHorizontal: Array<Int?>): String {
+    var legenda = ""
+    for (posiçao in 0 until contadoresHorizontal.size){
+        if(contadoresHorizontal[posiçao]==null){
+            legenda += "    "
+        }else if(contadoresHorizontal[posiçao]==0){
+            legenda += "    "
+        } else if (contadoresHorizontal[posiçao]!=null) {
+            legenda += contadoresHorizontal[posiçao]
+            if (posiçao < contadoresHorizontal.size-1){
+                legenda+="   "
+            } } }
+    return  legenda
+}
+fun leContadoresDoFicheiro(numLines:Int, numColumns: Int, verticais: Boolean): Array<Int?> {
+
+        var valor = 0
+    if (verticais == false) {
+        val array: Array<Int?> = Array(numLines) { 0 }
+        val linhas = File("$numLines" + "x" + "$numColumns" + ".txt").readLines()
+            val parte = linhas[1].split(",")
+        for (posicao in 0 until array.size) {
+                array[posicao] = parte[valor].toIntOrNull()
+            if (array[posicao]==0){
+                array[posicao]=null
+            }
+                valor++
+            }
+        return array
+    } else {
+        val array: Array<Int?> = Array(numColumns) { 0 }
+            val linhas = File("$numLines" + "x" + "$numColumns" + ".txt").readLines()
+            val parte = linhas[0].split(",")
+        for (posicao in 0 until array.size) {
+
+                array[posicao] = parte[valor].toIntOrNull()
+            if (array[posicao]==0){
+                array[posicao]=null
+            }
+                valor++ }
+        return array
+    }
+    return arrayOf(4)
+}
+fun leTerrenoDoFicheiro(numLines: Int, numColumns: Int): Array<Array<String?>>{
+    val array :Array<Array<String?>> = Array(numLines) {Array(numColumns){null} }
+    val linhas = File("$numLines"+"x"+"$numColumns"+".txt").readLines()
+        for (linha in 2..linhas.size - 1) {
+            val linhass = linhas[linha]
+            val parte = linhass.split(",")
+            val primeiraparte = parte[0].toInt()
+            val segundaprte = parte[1].toInt()
+            array[primeiraparte][segundaprte] = "A" }
+    return  array }
+fun temArvoreAdjacente(terreno: Array<Array<String?>>, coords: Pair<Int, Int>) : Boolean {
+    val linha = coords.first
+        val coluna = coords.second
+        if(linha > 0 && terreno[linha-1][coluna]=="A"||linha > 0 && terreno[linha-1][coluna]=="\u25B3"){
+            return true
+        }else if  (linha<terreno.size-1 && terreno[linha+1][coluna]== "A"||linha<terreno.size-1 && terreno[linha+1][coluna]== "\u25B3"){
+            return true
+        }else if (coluna > 0 && terreno[linha][coluna-1]=="A"||coluna > 0 && terreno[linha][coluna-1]=="\u25B3"){
+            return true
+        }else if (coluna < terreno[linha].size-1 && terreno[linha][coluna+1]=="A"||coluna < terreno[linha].size-1 && terreno[linha][coluna+1]=="\u25B3"){
+            return true
+        }else {
+            return false
+        }
+    }
+fun temTendaAdjacente(terreno: Array<Array<String?>>, coords: Pair<Int, Int>) : Boolean {
+    val linha = coords.first
+    val coluna = coords.second
+    if(linha > 0 && terreno[linha-1][coluna]=="T"){
+        return true
+    }else if  (linha<terreno.size-1 && terreno[linha+1][coluna]== "T"){
+        return true
+    }else if (coluna > 0 && terreno[linha][coluna-1]=="T"){
+        return true
+    }else if (coluna < terreno[linha].size-1 && terreno[linha][coluna+1]=="T"){
+        return true
+    }else if (linha> 0 && coluna > 0 && terreno[linha-1][coluna-1]=="T" ){
+        return true
+    }else if (linha> 0 && coluna < terreno[linha].size-1&& terreno[linha-1][coluna+1]=="T"){
+        return true
+    }else if (linha <terreno.size-1 && coluna > 0 && terreno[linha+1][coluna-1]== "T" ){
+        return true
+    }else if (linha <terreno.size-1 && coluna < terreno[linha].size-1 && terreno[linha+1][coluna+1]=="T"){
+        return true
+    }
+    return false
+}
+fun contaTendasColuna(terreno: Array<Array<String?>>, coluna: Int): Int {
+    var numero = 0
+    for (linha in 0 until terreno.size) {
+        for (colunas in 0 until terreno[linha].size) {
+            if (coluna == colunas) {
+                if (terreno[linha][colunas] == "T") {
+                    numero++ } } } }
+    return numero }
+fun contaTendasLinha(terreno: Array<Array<String?>>, linha: Int): Int {
+    var numero = 0
+    for (linhas in 0 until terreno.size) {
+        for (colunas in 0 until terreno[linha].size) {
+            if (linhas == linha) {
+                if (terreno[linha][colunas] == "T") {
+                    numero++ } } } }
+    return numero }
+fun colocaTenda(terreno: Array<Array<String?>>, coords: Pair<Int, Int>): Boolean {
+    if (terreno[coords.first][coords.second] == "T") {
+        terreno[coords.first][coords.second] = null
+        return true
+    } else {
+        if (temArvoreAdjacente(terreno, Pair(coords.first, coords.second)) == true) {
+            if (temTendaAdjacente(terreno, Pair(coords.first, coords.second)) == false) {
+                terreno[coords.first][coords.second] = "T"
+                return true }
+            return false } }
+    return false }
+fun terminouJogo(terreno: Array<Array<String?>>, contadoresVerticais: Array<Int?>, contadoresHorizontais: Array<Int?>): Boolean {
+    var ola = true
+    for (numeros in 0 until terreno.size) {
+        for (conta in 0 until terreno[numeros].size) {
+            if (contaTendasLinha(terreno, numeros) == contadoresVerticais[numeros]) {
+                if (contaTendasColuna(terreno, conta) == contadoresHorizontais[conta]) {
+                    ola = true
+                } else {
+                    return false
+                }
+            }else {
+                    return false }} }
+    return ola
+}
+
+
+
+fun validaTamanhoMapa(numLinhas: Int, numColunas: Int): Boolean {
+    when {
+        numLinhas == 5 && numColunas == 6 -> return true
+        numLinhas == 6 && numColunas == 6 -> return true
+        numLinhas == 10 && numColunas == 10 -> return true
+        numLinhas == 10 && numColunas == 8 -> return true
+        numLinhas == 8 && numColunas == 8 -> return true
+        numLinhas == 8 && numColunas == 10 -> return true }
+    return false
+}fun criaMenu(): String {
+return "\n" + "Bem vindo ao jogo das tendas\n" + "\n" +
+            "1 - Novo jogo\n" +
+            "0 - Sair\n" }
+fun acabajogo(jogo: Int): Boolean {
+    return true}
+fun criaTerrenooo(terreno: Array<Array<String?>>, contadoresVerticais: Array<Int?>?): String {
+    var resultado = ""
+    var numero = 0
+    var legenda = ""
+    var acaba = 0
+    if (terreno.size == terreno[0].size || terreno.size < terreno[0].size) {
+        for (linha in 0 until terreno.size) {
+            if (contadoresVerticais != null) {
+                if (contadoresVerticais[linha] == null) {
+                    legenda = "   "
+                } else if (contadoresVerticais[linha] == 0) {
+                    legenda = "   "
+                } else if (contadoresVerticais[linha] != null) {
+                    legenda = contadoresVerticais[linha].toString()
+
+                    if (linha < contadoresVerticais.size - 1) {
+                        legenda += "  "
+                    }
+                }
+            }
+            for (coluna in 0 until terreno[linha].size) {
+                if (terreno[linha][coluna] == null) {
+                    terreno[linha][coluna] = " "
+                }
+                if (terreno[linha][coluna] == "A") {
+                    terreno[linha][coluna] = "\u25B3"
+                }
+                if (coluna == 0) {
+                    numero++
+                    if (linha != terreno.size - 1) {
+                        resultado += legenda + numero.toString() + " | "
+                    } else if (terreno[0].size == 10 && terreno[0].size == terreno.size) {
+                        resultado += legenda +  numero.toString() + " | "
+                    } else if (terreno[0].size != terreno.size && terreno.size == 10) {
+                        resultado += legenda +  numero.toString() + " | "
+                    } else {
+                        resultado += legenda + "  "+ numero.toString() + " | "
+                    }
+                }
+                resultado += terreno[linha][coluna]
+                if (coluna < terreno[linha].size - 1)
+                    resultado += " | "
+            }
+            acaba++
+            if (acaba != terreno.size +1) {
+                resultado += "\n"
+            }
+
+        }
+
+    } else {
+        for (linha in 0 until terreno.size) {
+            if (contadoresVerticais != null) {
+                if (contadoresVerticais[linha] == null) {
+                    legenda = "    "
+                } else if (contadoresVerticais[linha] == 0) {
+                    legenda = "    "
+                } else if (contadoresVerticais[linha] != null) {
+                    legenda = contadoresVerticais[linha].toString()
+
+                    if (linha < contadoresVerticais.size - 1) {
+                        legenda += "   "
+                    }
+                }
+            }
+            for (coluna in 0 until terreno[linha].size) {
+
+                if (terreno[linha][coluna] == null) {
+                    terreno[linha][coluna] = " "
+                }
+                if (terreno[linha][coluna] == "A") {
+                    terreno[linha][coluna] = "\u25B3"
+                }
+                if (coluna == 0) {
+                    numero++
+                    if (linha != terreno.size - 1) {
+                        resultado += legenda + numero.toString() + " | "
+                    } else if (terreno[0].size == 10 && terreno[0].size == terreno.size) {
+                        resultado += legenda + "  " + numero.toString() + " | "
+                    } else if (terreno[0].size != terreno.size && terreno.size == 10) {
+                        resultado += legenda + "  " + numero.toString() + " | "
+                    } else {
+                        resultado += legenda + "   "+ numero.toString() + " | "
+                    }
+                }
+                resultado += terreno[linha][coluna]
+                if (coluna < terreno[linha].size - 1)
+                    resultado += " | "
+            }
+            acaba++
+            if (acaba != terreno[0].size +1) {
+                resultado += "\n"
+            }
+
+        }
+
+    }
+    return resultado
+}
+fun criaLegendaHorizontal(numColunas: Int): String {
+    var resultado = ""
+    var numero = 0
+    val letra = 'A'
+    val barra = '|'
+    val espaço = ' '
+    var converte: Int = letra.code
+    while (numero < numColunas) { numero++
+        if (numero < numColunas) {
+            resultado += converte.toChar() + espaço.toString() + barra.toString() + espaço
+            converte++
+        } else {
+            resultado += converte.toChar()
+            converte++ } }
+    return resultado }
+
+fun criaTerrenooosemcontadoresvirtical(terreno: Array<Array<String?>>): String {
+    var resultado = ""
+    var numero = 0
+    var legenda = ""
+    var acaba =0
+    for (linha in 0 until terreno.size) {
+
+        for (coluna in 0 until terreno[linha].size) {
+            if (terreno[linha][coluna] == null) {
+
+                terreno[linha][coluna] = " "
+            }
+            if (terreno[linha][coluna] == "A") {
+
+                terreno[linha][coluna] = "\u25B3"
+            }
+
+
+
+            if (coluna == 0) {
+                numero++
+
+                if (linha != terreno.size - 1 || (terreno[0].size==10 && terreno[0].size==terreno.size) || (terreno[0].size!=terreno.size && terreno.size==10)) {
+                    resultado += "   " +numero.toString() + " | "
+                }  else{
+                    resultado += "   " +numero.toString() + " | "
+                }
+            }
+            resultado += terreno[linha][coluna]
+            if (coluna < terreno[linha].size - 1)
+                resultado += " | "
+        }
+
+       if (acaba!=terreno.size-1)
+        resultado += "\n"
+        acaba++
+    }
+    return resultado
+
+}
+fun criaTerrenooosemlegnda(terreno: Array<Array<String?>>, contadoresVerticais: Array<Int?>?): String {
+    var resultado = ""
+    var numero = 0
+    var legenda = ""
+    var acaba =0
+    for (linha in 0 until terreno.size) {
+        if (contadoresVerticais != null) {
+
+            if (contadoresVerticais[linha] == null || (contadoresVerticais[linha] == 0) ) {
+                legenda = "    "
+            } else  {
+                legenda = contadoresVerticais[linha].toString()
+
+                if (linha < contadoresVerticais.size - 1) {
+                    legenda += "   "
+                }
+            }
+
+        }
+        for (coluna in 0 until terreno[linha].size) {
+            if (terreno[linha][coluna] == null) {
+                terreno[linha][coluna] = " "
+            }
+            if (terreno[linha][coluna] == "A") {
+                terreno[linha][coluna] = "\u25B3"
+            }
+
+            if (coluna == 0) {
+                numero++
+
+                if (linha != terreno.size - 1 || (terreno[0].size==10&&terreno[0].size==terreno.size) || (terreno[0].size!=terreno.size&&terreno.size==10) ) {
+                    resultado += legenda + " | "
+                }  else{
+                    resultado += legenda + " | "
+                }
+
+            }
+            resultado += terreno[linha][coluna]
+            if (coluna < terreno[linha].size - 1)
+                resultado += " | "
+        }
+
+if (acaba!=terreno.size-1){
+        resultado += "\n"}
+        acaba++
+    }
+    return resultado
+}fun criaTerrenooosemcontadoreselegenda(terreno: Array<Array<String?>>): String {
+    var resultado = ""
+    var numero = 0
+    var acaba =0
+    for (linha in 0 until terreno.size) {
+
+        for (coluna in 0 until terreno[linha].size) {
+            if (terreno[linha][coluna] == null) {
+
+                terreno[linha][coluna] = " "
+            }
+            if (terreno[linha][coluna] == "A") {
+
+                terreno[linha][coluna] = "\u25B3"
+            }
+
+            if (coluna == 0) {
+                numero++
+
+                if (linha != terreno.size - 1 || (terreno[0].size==10&&terreno[0].size==terreno.size) || (terreno[0].size!=terreno.size&&terreno.size==10)) {
+                    resultado +="     | "
+                }  else{
+                    resultado +=   "     | "
+                }
+            }
+            resultado += terreno[linha][coluna]
+
+            if (coluna < terreno[linha].size - 1)
+                resultado += " | "
+
+        }
+        if(acaba!=terreno.size-1) {
+            resultado += "\n"
+        }
+        acaba++
+    }
+    return resultado
+}
+fun criaTerreno(terreno: Array<Array<String?>>, contadoresVerticais: Array<Int?>?, contadoresHorizontais: Array<Int?>?, mostraLegendaHorizontal: Boolean = true, mostraLegendaVertical: Boolean = true): String {
+    for (linha in 0 until terreno.size) {
+        for (coluna in 0 until terreno[linha].size) {
+            if (contadoresHorizontais != null && contadoresVerticais != null && mostraLegendaHorizontal && mostraLegendaVertical) {
+               if(terreno.size==terreno[0].size|| terreno.size < terreno[0].size){
+                   return "\n"+"       " + criaLegendaContadoresHorizontal(leContadoresDoFicheiro(terreno.size, terreno[linha].size, true)) + "\n" + "     "+"| "+criaLegendaHorizontal(terreno[linha].size) + "\n" + criaTerrenooo(terreno, leContadoresDoFicheiro(terreno.size, terreno[linha].size, false))
+               }else {
+                   return "    " + criaLegendaContadoresHorizontal(leContadoresDoFicheiro(terreno.size, terreno[linha].size, true
+                   )) + "\n" + "      " + "| " + criaLegendaHorizontal(terreno[linha].size) + "\n" + criaTerrenooo(terreno, leContadoresDoFicheiro(terreno.size, terreno[linha].size, false))+"\n"
+               }
+            } else if (contadoresHorizontais == null && contadoresVerticais != null && mostraLegendaHorizontal && mostraLegendaVertical) {
+                return "       " + criaLegendaHorizontal(terreno[linha].size) + "\n" + criaTerrenooo(terreno,  leContadoresDoFicheiro(terreno.size, terreno[linha].size, true))
+            } else if (contadoresHorizontais != null && contadoresVerticais == null && mostraLegendaHorizontal && mostraLegendaVertical) {
+                return "        " + criaLegendaContadoresHorizontal(leContadoresDoFicheiro(terreno.size, terreno[linha].size, true)) + "\n" + criaLegendaHorizontal(terreno[linha].size) + "\n" + criaTerrenooosemcontadoresvirtical(terreno)
+            } else if (contadoresHorizontais == null && contadoresVerticais == null && mostraLegendaHorizontal && mostraLegendaVertical) {
+                return "     "+"| "+ criaLegendaHorizontal(terreno[linha].size) + "\n" + criaTerrenooosemcontadoresvirtical(terreno)
+            } else if (contadoresHorizontais == null && contadoresVerticais == null && mostraLegendaHorizontal == false && mostraLegendaVertical) {
+                return   criaTerrenooosemcontadoresvirtical(terreno)
+
+            } else if (contadoresHorizontais == null && contadoresVerticais == null && mostraLegendaHorizontal == false && mostraLegendaVertical == false) {
+                return  criaTerrenooosemcontadoreselegenda(terreno)
+            } else if (contadoresHorizontais == null && contadoresVerticais == null && mostraLegendaHorizontal && mostraLegendaVertical == false) {
+                return "     "+"| "+ criaLegendaHorizontal(terreno[linha].size) + "\n" + criaTerrenooosemcontadoreselegenda(terreno)
+            } else if (contadoresHorizontais == null && contadoresVerticais != null && mostraLegendaHorizontal == false && mostraLegendaVertical) {
+                return  criaTerrenooo(terreno,  leContadoresDoFicheiro(terreno.size, terreno[linha].size, false))
+            } else if (contadoresHorizontais == null && contadoresVerticais != null && mostraLegendaHorizontal == false && mostraLegendaVertical == false) {
+                return  criaTerrenooosemcontadoreselegenda(terreno)
+            } else if (contadoresHorizontais == null && contadoresVerticais != null && mostraLegendaHorizontal && mostraLegendaVertical == false) {
+                return  "      "+"| "+ criaLegendaHorizontal(terreno[linha].size) + "\n" + criaTerrenooosemlegnda(terreno,  leContadoresDoFicheiro(terreno.size, terreno[linha].size, true))
+            } else if (contadoresHorizontais != null && contadoresVerticais == null && mostraLegendaHorizontal == false && mostraLegendaVertical) {
+                return "        " + criaLegendaContadoresHorizontal(leContadoresDoFicheiro(terreno.size, terreno[linha].size, true)) + "\n" + criaTerrenooosemcontadoresvirtical(terreno)
+            } else if (contadoresHorizontais != null && contadoresVerticais == null && mostraLegendaHorizontal == false && mostraLegendaVertical == false) {
+                return "        " + criaLegendaContadoresHorizontal(leContadoresDoFicheiro(terreno.size, terreno[linha].size, true)) + "\n" + criaTerrenooosemcontadoreselegenda(terreno)
+            } else if (contadoresHorizontais != null && contadoresVerticais == null && mostraLegendaHorizontal && mostraLegendaVertical == false) {
+                return "        " + criaLegendaContadoresHorizontal(leContadoresDoFicheiro(terreno.size, terreno[linha].size, true)) + "\n" + "      "+"| "+ criaLegendaHorizontal(terreno[linha].size) + "\n" + criaTerrenooosemcontadoreselegenda(terreno)
+            } else if (contadoresHorizontais != null && contadoresVerticais != null && mostraLegendaHorizontal == false && mostraLegendaVertical) {
+                return "        " + criaLegendaContadoresHorizontal(leContadoresDoFicheiro(terreno.size, terreno[linha].size, true)) + "\n" + criaTerrenooo(terreno, contadoresVerticais)
+            } else if (contadoresHorizontais != null && contadoresVerticais != null && mostraLegendaHorizontal == false && mostraLegendaVertical == false) {
+                return "        " + criaLegendaContadoresHorizontal(leContadoresDoFicheiro(terreno.size, terreno[linha].size, true)) + "\n" + criaTerrenooosemlegnda(terreno, contadoresVerticais)
+            } else if (contadoresHorizontais != null && contadoresVerticais != null && mostraLegendaHorizontal && mostraLegendaVertical == false) {
+                return "        " + criaLegendaContadoresHorizontal(leContadoresDoFicheiro(terreno.size, terreno[linha].size, true)) + "\n" + "      "+"| "+ criaLegendaHorizontal(terreno[linha].size) + "\n" + criaTerrenooosemlegnda(terreno, leContadoresDoFicheiro(terreno.size, terreno[linha].size, false))
+            }
+        }
+
+    }
+    return "ola"
+}
+fun validaDataNascimento(data: String?): String? {
+    var datas = ""
+    datas += data
+    if (datas.length != 10) {
+        return ("Data invalida")
+    } else if (data != null && data[5].toString() == "-" && data[2].toString() == "-") {
+        val ano = data[6] + data[7].toString() + data[8].toString() + data[9].toString()
+        val mes = data[3] + data[4].toString()
+        val dia = data[0] + data[1].toString()
+        if (ano.toInt() > 1900 && ano.toInt() <= 2022) {
+            if (ano.toInt() == 2004) {
+                if (mes == "1" + 2) {
+                    if (dia in "0" + 1.."3" + 1) {
+                        return ("Menor de idade nao pode jogar") } else {
+                        return ("Data invalida") }
+                } else if (mes == "0" + 4 || mes == "0" + 6 || mes == "0" + 9 || mes == "1" + 1) {
+                    if (dia in "0" + 1.."3" + 0) {
+                        if (mes == "1" + 1 && dia >= "0" + 1) {
+                            return ("Menor de idade nao pode jogar") } else {
+                            return null } } else {
+                        return ("Data invalida") }
+                } else if (mes == "0" + 1 || mes == "0" + 3 || mes == "0" + 5 || mes == "0" + 7 || mes == "0" + 8 || mes == "1" + 0) {
+                    if (dia >= "0" + 1 && dia <= "3" + 1) {
+                        return null
+                    } else {
+                        return ("Data Invalida")
+                    } } else if (mes < "0" + 1 || mes > "1" + 2) {
+                    return ("Data invalida")
+                    } else {
+                    if (ano.toInt() % 4 == 0 && ano.toInt() % 100 != 0 || ano.toInt() % 400 == 0) {
+                        if (dia >= "0" + 1 && dia <= "2" + 9) {
+                            return null
+                        } else {
+                            return ("Data invalida")
+                        }
+                    } else {
+                        if (dia >= "0" + 1 && dia <= "2" + 8) {
+                            return null
+                        } else {
+                            return ("Data invalida") } } }
+            } else {
+                if (ano.toInt() > 2004) {
+                    if (mes == "0" + 1 || mes == "0" + 3 || mes == "0" + 5 || mes == "0" + 7 || mes == "0" + 8 || mes == "1" + 0) {
+                        if (dia in "0" + 1.."3" + 1) {
+                            return ("Menor de idade nao pode jogar")
+                        } else {
+                            return ("Data invalida")
+                        }
+                    } else if (mes == "0" + 4 || mes == "0" + 6 || mes == "0" + 9 || mes == "1" + 1) {
+                        if (dia in "0" + 1.."3" + 0) {
+                            return ("Menor de idade nao pode jogar")
+                        } else {
+                            return ("Data invalida") } } else {
+                        if (ano.toInt() % 4 == 0 && ano.toInt() % 100 != 0 || ano.toInt() % 400 == 0) {
+                            if (dia >= "0" + 1 && dia <= "2" + 9) {
+                                return ("Menor de idade nao pode jogar")
+                            } else {
+                                return ("Data invalida") }
+                        } else {
+                            if (dia >= "0" + 1 && dia <= "2" + 8) {
+                                return ("Menor de idade nao pode jogar")
+                            } else {
+                                return ("Data invalida") } } } } else {
+                    if (mes == "0" + 1 || mes == "0" + 3 || mes == "0" + 5 || mes == "0" + 7 || mes == "0" + 8 || mes == "1" + 0) {
+                        if (dia in "0" + 1.."3" + 1) {
+                            return null
+                        } else {
+                            return ("Data invalida") }
+                    } else if (mes == "0" + 4 || mes == "0" + 6 || mes == "0" + 9 || mes == "1" + 1) {
+                        if (dia in "0" + 1.."3" + 0) {
+                            return null
+                        } else {
+                            return ("Data invalida") }
+                    } else {
+                        if (ano.toInt() % 4 == 0 && ano.toInt() % 100 != 0 || ano.toInt() % 400 == 0) {
+                            if (dia in "0" + 1.."2" + 9) {
+                                return null } else {
+                                return ("Data invalida") } } else {
+                            if (dia in "0" + 1.."2" + 8) {
+                                return null
+                            } else {
+                                return ("Data invalida") } } } } } }
+        return ("Data invalida") }
+    return ("Data invalida") }
+    fun processaCoordenadas(coordenadasStr: String?, numLines: Int, numColumns: Int): Pair<Int,Int>? {
+
+        val letraA='A'.code
+        var alfabeto=letraA
+        val conversaoColuna=numColumns
+        var inicio=1
+
+        while(conversaoColuna> inicio){
+            inicio++
+            alfabeto++
+        }
+
+        if (numLines >0) {
+            if (coordenadasStr != null) {
+                if (coordenadasStr.length == 3) {
+                    if ((coordenadasStr[0].toString()).toInt() in 1.. numLines) {
+                        if (coordenadasStr[1].toString() == ",") {
+                            if (letraA <= coordenadasStr[2].code && coordenadasStr[2].code <= alfabeto) {
+                                val naoSei = coordenadasStr[0].toString()
+                                val inteiro = naoSei.toInt()
+                                val letra = coordenadasStr[2].code
+                                val resultadoLinha = inteiro - 1
+                                val numero = letra - letraA
+
+                                return Pair(resultadoLinha, numero)
+
+                            } else {
+                                return null
+                            }
+                        } else {
+                            return null
+                        }
+                    } else {
+                        return null
+                    }
+
+                } else if (coordenadasStr.length == 4) {
+                    if ((coordenadasStr[0].toString() + coordenadasStr[1]).toInt() in 1..numLines) {
+                        if (coordenadasStr[2].toString() == ",") {
+                            if (letraA <= coordenadasStr[3].code && coordenadasStr[3].code <= alfabeto) {
+
+                                val naoSei = coordenadasStr[0].toString() + coordenadasStr[1].toString()
+                                val inteiro = naoSei.toInt()
+                                val resultadoLinha = inteiro - 1
+                                val letra = coordenadasStr[3].code
+                                val resultado = letra - letraA
+                                return Pair(resultadoLinha, resultado)
+                            } else {
+                                return null
+                            }
+                        } else {
+                            return null
+                        }
+                    } else {
+                        return null
+                    }
+                }
+
+            } else {
+                return null
+            }
+
+        }
+        return null
+    }
+
+
+
+fun main() {
+    var linhasparaafuncaotoda = 0
+    var colunasoaraafuncaotoda = 0
+    var datas = ""
+    var ola =0
+    var ole = 0
+    var processacoordnadasteste :Pair<Int,Int>? = Pair(4,5)
+    val acabajogo = 0
+    do { do { datas = ""
+        do {
+                var colunas = 0
+                var linhas = 0
+                println(criaMenu())
+                var numerointruduzido = readln().toIntOrNull()
+                linhasparaafuncaotoda = 0
+                colunasoaraafuncaotoda = 0
+                while (numerointruduzido != 0 && numerointruduzido != 1 || numerointruduzido == null) {
+                    println("Opcao invalida")
+                    println(criaMenu())
+                    numerointruduzido = readln().toIntOrNull() }
+                if (numerointruduzido == 0) {
+                    return
+                } else {
+                    println("Quantas linhas?")
+                    var numerodelinhas = readln().toIntOrNull()
+                    while (numerodelinhas == null || numerodelinhas < 0) {
+                        println("Resposta invalida")
+                        println("Quantas linhas?")
+                        numerodelinhas = readln().toIntOrNull() }
+                    println("Quantas colunas?")
+                    var numerodecolunas = readln().toIntOrNull()
+                    while (numerodecolunas == null || numerodecolunas < 0) {
+                        println("Resposta invalida")
+                        numerodecolunas = readln().toIntOrNull() }
+                    colunas += numerodecolunas
+                    linhas += numerodelinhas
+                    if (validaTamanhoMapa(colunas, linhas) == false) {
+                        println("Terreno invalido") } }
+                while (linhasparaafuncaotoda < linhas) {
+                    linhasparaafuncaotoda++ }
+                while (colunasoaraafuncaotoda < colunas) {
+                    colunasoaraafuncaotoda++ }
+            } while (validaTamanhoMapa(colunas, linhas) == false)
+            if (colunasoaraafuncaotoda != 10||linhasparaafuncaotoda!=10) {
+                print(criaTerreno(leTerrenoDoFicheiro(linhasparaafuncaotoda, colunasoaraafuncaotoda), leContadoresDoFicheiro(linhasparaafuncaotoda, colunasoaraafuncaotoda, true), leContadoresDoFicheiro(linhasparaafuncaotoda, colunasoaraafuncaotoda, false)))
+                var terreroficheiro=leTerrenoDoFicheiro(linhasparaafuncaotoda, colunasoaraafuncaotoda)
+                do {
+                    do {
+                        if (ola!=0&&ola !=5){
+                            println(criaTerreno(terreroficheiro, leContadoresDoFicheiro(linhasparaafuncaotoda, colunasoaraafuncaotoda, true), leContadoresDoFicheiro(linhasparaafuncaotoda, colunasoaraafuncaotoda, false))) }
+                        println("Coordenadas da tenda? (ex: 1,B)")
+                        var coordenadas = readln().toString()
+                        if (coordenadas == "sair") {
+                            return }
+                        while (processaCoordenadas(coordenadas, linhasparaafuncaotoda, colunasoaraafuncaotoda) == null) {
+                            println("Coordenadas invalidas")
+                            println("Coordenadas da tenda? (ex: 1,B)")
+                            coordenadas = readln().toString() }
+                        if (processaCoordenadas(coordenadas, linhasparaafuncaotoda, colunasoaraafuncaotoda) != null) {
+                            processacoordnadasteste = processaCoordenadas(coordenadas, linhasparaafuncaotoda, colunasoaraafuncaotoda) }
+                        ola++
+                        ole++
+                        if(colocaTenda(terreroficheiro, processacoordnadasteste!!)==false){
+                            println("Tenda nao pode ser colocada nestas coordenadas")
+                            ola=5
+                        }
+                        colocaTenda(terreroficheiro, processacoordnadasteste!!)
+                    } while (colocaTenda(terreroficheiro, processacoordnadasteste!!)==false)
+                } while (terminouJogo(terreroficheiro, leContadoresDoFicheiro(linhasparaafuncaotoda, colunasoaraafuncaotoda, true), leContadoresDoFicheiro(linhasparaafuncaotoda, colunasoaraafuncaotoda, false)) == false)
+                println("Parabens! Terminou o jogo!") }
+            if (linhasparaafuncaotoda == 10 && colunasoaraafuncaotoda == 10) {
+                println("Qual a sua data de nascimento? (dd-mm-yyyy)")
+                var data = readln().toString()
+                if (validaDataNascimento(data) == "Menor de idade nao pode jogar") {
+                    println(validaDataNascimento(data)) }
+                while (validaDataNascimento(data) == "Data invalida") {
+                    println(validaDataNascimento(data))
+                    println("Qual a sua data de nascimento? (dd-mm-yyyy)")
+                    data = readln().toString() }
+                datas += data }
+        } while (validaDataNascimento(datas) != null)
+        println(criaTerreno(leTerrenoDoFicheiro(linhasparaafuncaotoda, colunasoaraafuncaotoda), leContadoresDoFicheiro(linhasparaafuncaotoda, colunasoaraafuncaotoda, true), leContadoresDoFicheiro(linhasparaafuncaotoda, colunasoaraafuncaotoda, false)))
+        var terreroficheiro=leTerrenoDoFicheiro(linhasparaafuncaotoda, colunasoaraafuncaotoda)
+        do { do {
+                if (ola!=0&&ola !=5){
+                    print(criaTerreno(terreroficheiro, leContadoresDoFicheiro(linhasparaafuncaotoda, colunasoaraafuncaotoda, true), leContadoresDoFicheiro(linhasparaafuncaotoda, colunasoaraafuncaotoda, false))) }
+                println("Coordenadas da tenda? (ex: 1,B)\n")
+                var coordenadas = readln().toString()
+                if (coordenadas == "sair") {
+                    return }
+                while (processaCoordenadas(coordenadas, linhasparaafuncaotoda, colunasoaraafuncaotoda) == null) {
+                    println("Coordenadas invalidas")
+                    println("Coordenadas da tenda? (ex: 1,B)")
+                    coordenadas = readln().toString() }
+                if (processaCoordenadas(coordenadas, linhasparaafuncaotoda, colunasoaraafuncaotoda) != null) {
+                    processacoordnadasteste = processaCoordenadas(coordenadas, linhasparaafuncaotoda, colunasoaraafuncaotoda) }
+                ola++
+                ole++
+                if(colocaTenda(terreroficheiro, processacoordnadasteste!!)==false){
+                    println("Tenda nao pode ser colocada nestas coordenadas")
+                    ola=5 }
+                colocaTenda(terreroficheiro, processacoordnadasteste!!)
+            } while (colocaTenda(terreroficheiro, processacoordnadasteste!!)==false)
+        } while (terminouJogo(terreroficheiro, leContadoresDoFicheiro(linhasparaafuncaotoda, colunasoaraafuncaotoda, true), leContadoresDoFicheiro(linhasparaafuncaotoda, colunasoaraafuncaotoda, false)) == false)
+        println("Parabens! Terminou o jogo!")
+    } while (acabajogo(acabajogo) == true)
+}
